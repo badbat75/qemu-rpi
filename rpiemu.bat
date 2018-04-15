@@ -17,11 +17,17 @@ set DEVELOPMENT=0
 
 rem ===== Set the append string =====
 rem set APPEND=console=ttyAMA0 root=/dev/mmcblk0p2
-set APPEND=console=tty1 root=PARTUUID=37665771-02 rootfstype=ext4 fsck.repair=yes rootwait
+set APPEND=console=tty1 root=PARTUUID=a8fe70f4-02 rootfstype=ext4 fsck.repair=yes rootwait
+rem set APPEND=console=tty1 root=/dev/vda2 rootfstype=ext4 fsck.repair=yes rootwait
 
 rem ===== Set the image details =====
-rem set IMAGE=%USERPROFILE%\Desktop\2017-11-29-raspbian-stretch-lite.img
-set IMAGE=%USERPROFILE%\Desktop\moode.img
+IF [%1] == [] (
+set IMAGE=%USERPROFILE%\Desktop\2018-03-13-raspbian-stretch-lite.img
+)
+ELSE
+(
+set IMAGE=%1
+)
 set IMAGEFMT=raw
 
 rem ===== Set the nographic option ======
