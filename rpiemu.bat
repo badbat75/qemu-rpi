@@ -22,10 +22,9 @@ rem set APPEND=console=tty1 root=/dev/vda2 rootfstype=ext4 fsck.repair=yes rootw
 
 rem ===== Set the image details =====
 IF [%1] == [] (
-set IMAGE=%USERPROFILE%\Desktop\2018-03-13-raspbian-stretch-lite.img
+set IMAGE=2018-03-13-raspbian-stretch-lite.img
 )
-ELSE
-(
+ELSE (
 set IMAGE=%1
 )
 set IMAGEFMT=raw
