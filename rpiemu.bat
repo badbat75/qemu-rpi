@@ -9,6 +9,9 @@ rem        versatilepb
 rem        vexpress-a9
 set MACHINE=virt
 
+rem ===== Set the default IMAGE =====
+set DEFIMAGE=2018-03-13-raspbian-stretch-lite.img
+
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
 rem        1 : Catch kernel from kernel build path
@@ -21,11 +24,11 @@ set APPEND=console=tty1 root=PARTUUID=a8fe70f4-02 rootfstype=ext4 fsck.repair=ye
 rem set APPEND=console=tty1 root=/dev/vda2 rootfstype=ext4 fsck.repair=yes rootwait
 
 rem ===== Set the image details =====
-IF [%1] == [] (
-set IMAGE=2018-03-13-raspbian-stretch-lite.img
-)
-ELSE (
-set IMAGE=%1
+rem If passed thru batch parameter use it else it uses the DEFIMAGE one
+IF "%~1"=="" (
+set IMAGE=%DEFIMAGE%
+) ELSE (
+set IMAGE=%~1
 )
 set IMAGEFMT=raw
 
