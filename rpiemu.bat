@@ -112,9 +112,6 @@ set KERNEL_IMAGE=linux-4.14.34-bcmrpi
 set DTB_FILE=bcm2708-rpi-b-plus.dtb
 set CPUS=1
 set MEM=512
-rem set CTLDEVICE=<not supported>
-rem set DISKDEVICE=<not supported>
-rem set NETDEVICE=<not supported>
 goto END_CASE
 
 :CASE_raspi2
@@ -122,9 +119,6 @@ set KERNEL_IMAGE=kernel7.img
 set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
-rem set CTLDEVICE=virtio-blk-device
-rem set DISKDEVICE=none
-rem set NETDEVICE=virtio-net-device
 set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.lpm_enable=0
 goto END_CASE
 
