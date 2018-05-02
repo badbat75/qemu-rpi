@@ -10,7 +10,7 @@ rem        vexpress-a9
 set MACHINE=virt
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2018-03-13-raspbian-stretch-lite.img
+set DEFIMAGE=2018-04-18-raspbian-stretch-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
