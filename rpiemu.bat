@@ -7,7 +7,7 @@ rem	       raspi2
 rem	       virt
 rem        versatilepb
 rem        vexpress-a9
-set MACHINE=virt
+set MACHINE=raspi2
 
 rem ===== Set the default IMAGE =====
 set DEFIMAGE=2018-04-18-raspbian-stretch-lite.img
@@ -20,8 +20,8 @@ set DEVELOPMENT=0
 
 rem ===== Set the append string =====
 rem set APPEND=console=ttyAMA0 root=/dev/mmcblk0p2
-set APPEND=console=tty1 root=PARTUUID=a8fe70f4-02 rootfstype=ext4 fsck.repair=yes rootwait
-rem set APPEND=console=tty1 root=/dev/vda2 rootfstype=ext4 fsck.repair=yes rootwait
+rem set APPEND=console=tty1 root=PARTUUID=a8fe70f4-02 rootfstype=ext4 fsck.repair=yes rootwait
+set APPEND=console=tty1 rootfstype=ext4 fsck.repair=yes rootwait
 
 rem ===== Set the image details =====
 rem If passed thru batch parameter use it else it uses the DEFIMAGE one
@@ -43,7 +43,7 @@ set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLimite
 
 rem ===== Additional QEMU Configs =====
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -monitor telnet:127.0.0.1:5021,server,nowait
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
+
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device usb-storage,drive=usbdrive,removable=on,id=usbdevice -drive file=%USERPROFILE%\Desktop\USB.img,id=usbdrive,if=none,format=raw
 
 rem ========================================
@@ -71,7 +71,9 @@ IF %CPUS% GEQ 2 (
 IF "%CTLDEVICE%"=="virtio-blk-device" (
 	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
 ) ELSE (
-	set STORAGESTRING=-drive file=%IMAGE%,format=%IMAGEFMT%
+rem	set STORAGESTRING=-drive file=%IMAGE%,format=%IMAGEFMT%
+	set STORAGESTRING=-sd %IMAGE%
+rem	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
 )
 
 IF "%NETDEVICE%"=="virtio-net-device" (
@@ -105,50 +107,58 @@ pause
 exit /B
 
 :CASE_raspi
-set KERNEL_IMAGE=linux-4.9.66-bcm2835
-set DTB_FILE=bcm2835-rpi-b-rev2.dtb
+set MACHINE=raspi2
+set KERNEL_IMAGE=linux-4.14.34-bcmrpi
+set DTB_FILE=bcm2708-rpi-b-plus.dtb
 set CPUS=1
 set MEM=512
-set CTLDEVICE=virtio-blk-device
-set DISKDEVICE=none
-set NETDEVICE=virtio-net-device
+rem set CTLDEVICE=<not supported>
+rem set DISKDEVICE=<not supported>
+rem set NETDEVICE=<not supported>
 goto END_CASE
 
 :CASE_raspi2
-set KERNEL_IMAGE=linux-4.9.66-bcm2835
-set DTB_FILE=bcm2836-rpi-2-b.dtb
+set KERNEL_IMAGE=kernel7.img
+set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
-set CTLDEVICE=virtio-blk-device
-set DISKDEVICE=none
-set NETDEVICE=virtio-net-device
+rem set CTLDEVICE=virtio-blk-device
+rem set DISKDEVICE=none
+rem set NETDEVICE=virtio-net-device
+set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.lpm_enable=0
 goto END_CASE
 
 :CASE_versatilepb
-set KERNEL_IMAGE=linux-4.9.66-versatile
+set KERNEL_IMAGE=linux-4.14.37-versatile
 set DTB_FILE=versatile-pb.dtb
 set CPUS=1
 set MEM=256
-set DISKDEVICE=sd
+rem set CTLDEVICE=<not supported>
+rem set DISKDEVICE=<not supported>
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
+set APPEND=%APPEND% root=PARTUUID=c7cb7e34-02
 goto END_CASE
 
 :CASE_vexpress-a9
-set KERNEL_IMAGE=linux-4.9.66-vexpress
+set KERNEL_IMAGE=linux-4.14.37-vexpress
 set DTB_FILE=vexpress-v2p-ca9.dtb
 set CPUS=2
 set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=none
 set NETDEVICE=virtio-net-device
+set APPEND=%APPEND% root=/dev/vda2
 goto END_CASE
 
 :CASE_virt
-set KERNEL_IMAGE=zImage
+set KERNEL_IMAGE=linux-4.14.37-vexpress
 set CPUS=2
 set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=none
 set NETDEVICE=virtio-net-device
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
+set APPEND=%APPEND% root=/dev/vda2
 goto END_CASE
 
 :DEFAULT_CASE
