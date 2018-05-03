@@ -2,8 +2,8 @@
 
 rem ===== Set the MACHINE variable =====
 rem Possible values:
-rem	       raspi
 rem	       raspi2
+rem	       raspi3
 rem	       virt
 rem        versatilepb
 rem        vexpress-a9
@@ -19,9 +19,7 @@ rem        0 : Catch kernel from MACHINE definitions
 set DEVELOPMENT=0
 
 rem ===== Set the append string =====
-rem set APPEND=console=ttyAMA0 root=/dev/mmcblk0p2
-rem set APPEND=console=tty1 root=PARTUUID=a8fe70f4-02 rootfstype=ext4 fsck.repair=yes rootwait
-set APPEND=console=tty1 rootfstype=ext4 fsck.repair=yes rootwait
+set APPEND=rootfstype=ext4 fsck.repair=yes rootwait
 
 rem ===== Set the image details =====
 rem If passed thru batch parameter use it else it uses the DEFIMAGE one
@@ -36,7 +34,12 @@ rem ===== Set the nographic option ======
 rem Uncomment to disable graphic console
 rem Remember to add console=ttyAMA0 to append
 rem string in order to access to console.
-set NOGRAPHIC=-nographic
+rem set NOGRAPHIC=-nographic
+
+rem ===== Set Device Help ======
+rem If you want to list the devices can
+rem be configured set this
+rem set DEVICEHELP=1
 
 rem ===== Set the kernel build path =====
 set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\emiliano\linux-4.9.66
@@ -71,21 +74,23 @@ IF %CPUS% GEQ 2 (
 IF "%CTLDEVICE%"=="virtio-blk-device" (
 	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
 ) ELSE (
-rem	set STORAGESTRING=-drive file=%IMAGE%,format=%IMAGEFMT%
-	set STORAGESTRING=-sd %IMAGE%
-rem	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
+	set STORAGESTRING=-drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%
 )
 
-IF "%NETDEVICE%"=="virtio-net-device" (
+IF DEFINED NETDEVICE (
 	set NETWORKSTRING=-device %NETDEVICE%,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
 )
 
 IF DEFINED NOGRAPHIC (
-	set APPEND=%APPEND% console=ttyAMA0
+	set APPEND=%APPEND% console=ttyAMA0,115200
+) ELSE (
+	set APPEND=%APPEND% console=tty1
 )
 set APPEND="%APPEND%"
 
-set CMDLINE="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE% -kernel %KERNEL_PATH%%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -serial stdio -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
+set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -serial stdio -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
+set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
 echo.
@@ -99,27 +104,38 @@ echo Image:        "%IMAGE%"
 echo Image format: "%IMAGEFMT%"
 echo.
 echo Command line:
-echo %CMDLINE%
-%CMDLINE%
+if "%DEVICEHELP%"=="1" (
+	echo %HELPLINE%
+	%HELPLINE%
+) ELSE (
+	echo %RUNLINE%
+	%RUNLINE%
+)
 echo.
 
 pause
 exit /B
-
-:CASE_raspi
-set MACHINE=raspi2
-set KERNEL_IMAGE=linux-4.14.34-bcmrpi
-set DTB_FILE=bcm2708-rpi-b-plus.dtb
-set CPUS=1
-set MEM=512
-goto END_CASE
 
 :CASE_raspi2
 set KERNEL_IMAGE=kernel7.img
 set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
-set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.lpm_enable=0
+set DISKDEVICE=sd
+set APPEND=%APPEND% root=/dev/mmcblk0p2
+set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS%
+goto END_CASE
+
+:CASE_raspi3
+set KERNEL_IMAGE=kernel7.img
+set DTB_FILE=bcm2710-rpi-3-b.dtb
+set CPUS=4
+set MEM=1024
+set DISKDEVICE=sd
+set APPEND=%APPEND% root=/dev/mmcblk0p2
+set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS%
 goto END_CASE
 
 :CASE_versatilepb
@@ -153,6 +169,7 @@ set DISKDEVICE=none
 set NETDEVICE=virtio-net-device
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
 set APPEND=%APPEND% root=/dev/vda2
+set NOGRAPHIC=-nographic
 goto END_CASE
 
 :DEFAULT_CASE
