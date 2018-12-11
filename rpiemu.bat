@@ -10,7 +10,7 @@ rem        vexpress-a9
 set MACHINE=raspi2
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2018-04-18-raspbian-stretch-lite.img
+set DEFIMAGE=2018-10-09-raspbian-stretch-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
@@ -123,19 +123,19 @@ set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
 set APPEND=%APPEND% root=/dev/mmcblk0p2
-set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS%
+rem set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse -device usb-net,netdev=usb0 -netdev user,id=usb0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
 goto END_CASE
 
 :CASE_raspi3
-set KERNEL_IMAGE=kernel7.img
+set KERNEL_IMAGE=vmlinuz-4.9.0-8-arm64
 set DTB_FILE=bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
 set APPEND=%APPEND% root=/dev/mmcblk0p2
-set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS%
+rem set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse -device usb-net,netdev=usb0 -netdev user,id=usb0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
 goto END_CASE
 
 :CASE_versatilepb
