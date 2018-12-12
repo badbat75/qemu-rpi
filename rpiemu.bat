@@ -53,18 +53,13 @@ rem ========================================
 
 cd %~dp0
 
-set KERNEL_PATH=
+set KERNEL_PATH=boot
 
 2>NUL call :CASE_%MACHINE%
 IF ERRORLEVEL 1 CALL :DEFAULT_CASE
 
-IF "%DEVELOPMENT%"=="1" (
-	set KERNEL_PATH=%KERNEL_SOURCE_PATH%\arch\arm\boot\
-	set KERNEL_IMAGE=zImage
-)
-
 IF DEFINED DTB_FILE (
-	set DTB=-dtb %KERNEL_PATH%dts\%DTB_FILE%
+	set DTB=-dtb %KERNEL_PATH%\%DTB_FILE%
 )
 
 IF %CPUS% GEQ 2 (
@@ -89,7 +84,7 @@ IF DEFINED NOGRAPHIC (
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
-set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -serial stdio -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -serial stdio -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
@@ -123,19 +118,19 @@ set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
 set APPEND=%APPEND% root=/dev/mmcblk0p2
-rem set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse -device usb-net,netdev=usb0 -netdev user,id=usb0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
+set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
 goto END_CASE
 
 :CASE_raspi3
-set KERNEL_IMAGE=vmlinuz-4.9.0-8-arm64
+set KERNEL_IMAGE=kernel8.img
 set DTB_FILE=bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
 set APPEND=%APPEND% root=/dev/mmcblk0p2
-rem set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse -device usb-net,netdev=usb0 -netdev user,id=usb0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
+set NETDEVICE=usb-net
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
 goto END_CASE
 
 :CASE_versatilepb
