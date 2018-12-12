@@ -31,7 +31,7 @@ case "${1}" in
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- || exit 1
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
-        cp ${SRC_PATH}/arch/arm64/boot/Image.gz ${BOOT_PATH}/kernel8.img
+        cp ${SRC_PATH}/arch/arm64/boot/Image ${BOOT_PATH}/kernel8.img
         install
         ;;
     "raspi2")
