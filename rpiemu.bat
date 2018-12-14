@@ -7,7 +7,9 @@ rem	       raspi3
 rem	       virt
 rem        versatilepb
 rem        vexpress-a9
-set MACHINE=raspi2
+set MACHINE=raspi3
+
+set KVER=4.14.87
 
 rem ===== Set the default IMAGE =====
 set DEFIMAGE=2018-10-09-raspbian-stretch-lite.img
@@ -112,7 +114,7 @@ pause
 exit /B
 
 :CASE_raspi2
-set KERNEL_IMAGE=kernel7.img
+set KERNEL_IMAGE=kernel7-%KVER%.img
 set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
@@ -123,7 +125,7 @@ set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
 goto END_CASE
 
 :CASE_raspi3
-set KERNEL_IMAGE=kernel8.img
+set KERNEL_IMAGE=kernel8-%KVER%.img
 set DTB_FILE=bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
@@ -156,7 +158,7 @@ set APPEND=%APPEND% root=/dev/vda2
 goto END_CASE
 
 :CASE_virt
-set KERNEL_IMAGE=linux-4.14.37-vexpress
+set KERNEL_IMAGE=linux-%KVER%-%MACHINE%
 set CPUS=2
 set MEM=1024
 set CTLDEVICE=virtio-blk-device
