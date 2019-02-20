@@ -7,7 +7,7 @@ rem	       raspi3
 rem	       virt
 rem        versatilepb
 rem        vexpress-a9
-set MACHINE=raspi3
+set MACHINE=virt
 
 set KVER=4.14.87
 
