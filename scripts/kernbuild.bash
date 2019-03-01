@@ -37,7 +37,7 @@ function kbuild {
         esac
         TGTIMAGE=${SRC_PATH}/arch/${ARCH}/boot/${IMAGE}
         prepare
-        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${KCONFIG} .config || exit 1
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${KCONFIG} .config || exit 1
 	if [ ${VIRTIOCFG} -eq 1 ]
         then
 		CONFIG_ENABLE_FLAGS+="CONFIG_VIRTIO \
