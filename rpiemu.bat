@@ -9,10 +9,10 @@ rem        versatilepb
 rem        vexpress-a9
 set MACHINE=virt
 
-set KVER=4.14.87
+set KVER=4.14.79
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2018-10-09-raspbian-stretch-lite.img
+set DEFIMAGE=2018-11-13-raspbian-stretch-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:

@@ -8,6 +8,8 @@ SAVEPATH=${PWD}
 TARGET=${1}
 
 function prepare {
+    [ ! -d ${BOOT_PATH} ] && mkdir ${BOOT_PATH}
+    [ ! -d ${MOD_PATH} ] && mkdir ${MOD_PATH}
     test -d "${TMP_MOD_PATH}" && rm -rf ${TMP_MOD_PATH}
     mkdir -p ${TMP_MOD_PATH}
     test -f "${MOD_PATH}/linux-${KERNEL_VER}.tar.xz" && tar xJf ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz -C${TMP_MOD_PATH}
@@ -35,27 +37,36 @@ function kbuild {
         esac
         TGTIMAGE=${SRC_PATH}/arch/${ARCH}/boot/${IMAGE}
         prepare
-        make EXTRAVERSION=-${TARGET} ${KCONFIG} || exit 1
-        if [ ${VIRTIOCFG} -eq 1 ]
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${KCONFIG} .config || exit 1
+	if [ ${VIRTIOCFG} -eq 1 ]
         then
-            for item in \
-                CONFIG_VIRTIO \
-                CONFIG_VIRTIO_NET \
-                CONFIG_VIRTIO_PCI \
-                CONFIG_VIRTIO_BALLOON \
-                CONFIG_VIRTIO_BLK \
-                CONFIG_VIRTIO_RING
-            do
-                scripts/config --enable ${item}
-            done
-            make EXTRAVERSION=-${TARGET} defconfig .config || exit 1
-        fi
-        make EXTRAVERSION=-${TARGET} Image modules || exit 1
-        make EXTRAVERSION=-${TARGET} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
+		CONFIG_ENABLE_FLAGS+="CONFIG_VIRTIO \
+			CONFIG_VIRTIO_NET \
+			CONFIG_VIRTIO_PCI \
+			CONFIG_VIRTIO_BALLOON \
+			CONFIG_VIRTIO_BLK \
+			CONFIG_VIRTIO_RING "
+	fi
+	if [ ${ENABLELTO:-0} -eq 1 ]
+	then
+		CONFIG_ENABLE_FLAGS+="CONFIG_LTO "
+    fi
+	for item in ${CONFIG_ENABLE_FLAGS}
+	do
+		scripts/config --enable ${item}
+		echo "${item}: Enabled"
+	done
+	for item in ${CONFIG_DISABLE_FLAGS}
+	do
+		scripts/config --disable ${item}
+		echo "${item}: Disabled"
+	done
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
         if [ ${DTBS} -eq 1 ]
         then
-            make EXTRAVERSION=-${TARGET} dtbs || exit 1
-            make EXTRAVERSION=-${TARGET} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
+            KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
+            KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
         fi
         cp ${TGTIMAGE} ${BOOT_PATH}/${KNAME:-linux-${KERNEL_VER}-${TARGET}}
         install
@@ -72,8 +83,10 @@ case "${TARGET}" in
     "virt")
         ARCH=arm
         KCONFIG=vexpress_defconfig
-        VIRTIOCFG=0
+        VIRTIOCFG=1
         DTBS=0
+	MAKE_EXTRAVERSION=-virt-v7+
+	CONFIG_ENABLE_FLAGS="CONFIG_MODVERSIONS "
         kbuild
         ;;
     "raspi3")
@@ -81,6 +94,7 @@ case "${TARGET}" in
         KCONFIG=bcmrpi3_defconfig
         VIRTIOCFG=0
         DTBS=1
+	MAKE_EXTRAVERSION=-v7+
         KNAME=kernel8-${KERNEL_VER}.img
         kbuild
         ;;
@@ -89,6 +103,7 @@ case "${TARGET}" in
         KCONFIG=bcm2709_defconfig
         VIRTIOCFG=0
         DTBS=1
+	MAKE_EXTRAVERSION=-v7+
         KNAME=kernel7-${KERNEL_VER}.img
         kbuild
         ;;
@@ -97,6 +112,7 @@ case "${TARGET}" in
         KCONFIG=bcmrpi_defconfig
         VIRTIOCFG=0
         DTBS=1
+	MAKE_EXTRAVERSION=+
         KNAME=kernel-${KERNEL_VER}.img
         kbuild
         ;;    
