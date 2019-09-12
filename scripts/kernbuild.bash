@@ -47,6 +47,20 @@ function kbuild {
 			CONFIG_VIRTIO_BLK \
 			CONFIG_VIRTIO_RING "
 	fi
+	if [ ${TARGET} == "raspi3" ]
+        then
+		CONFIG_ENABLE_FLAGS+="CONFIG_USB_CATC \
+            CONFIG_USB_CDC_PHONET \
+            CONFIG_USB_HSO \
+            CONFIG_USB_IPHETH \
+            CONFIG_USB_KAWETH \
+            CONFIG_USB_NET_CDC_SUBSET \
+            CONFIG_USB_PEGASUS \
+            CONFIG_USB_RTL8150 \
+            CONFIG_USB_USBNET \
+            CONFIG_USB_ZD1201 "
+	fi
+    
 	if [ ${ENABLELTO:-0} -eq 1 ]
 	then
 		CONFIG_ENABLE_FLAGS+="CONFIG_LTO "
@@ -61,12 +75,12 @@ function kbuild {
 		scripts/config --disable ${item}
 		echo "${item}: Disabled"
 	done
-        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
-        KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
+        KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
         if [ ${DTBS} -eq 1 ]
         then
-            KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
-            KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
+            KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
+            KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
         fi
         cp ${TGTIMAGE} ${BOOT_PATH}/${KNAME:-linux-${KERNEL_VER}-${TARGET}}
         install
@@ -85,8 +99,8 @@ case "${TARGET}" in
         KCONFIG=vexpress_defconfig
         VIRTIOCFG=1
         DTBS=0
-	MAKE_EXTRAVERSION=-virt-v7+
-	CONFIG_ENABLE_FLAGS="CONFIG_MODVERSIONS "
+	    MAKE_EXTRAVERSION=-virt
+	    CONFIG_ENABLE_FLAGS="CONFIG_MODVERSIONS "
         kbuild
         ;;
     "raspi3")
@@ -94,7 +108,7 @@ case "${TARGET}" in
         KCONFIG=bcmrpi3_defconfig
         VIRTIOCFG=0
         DTBS=1
-	MAKE_EXTRAVERSION=-v7+
+	    MAKE_EXTRAVERSION=-v8+
         KNAME=kernel8-${KERNEL_VER}.img
         kbuild
         ;;
@@ -103,7 +117,7 @@ case "${TARGET}" in
         KCONFIG=bcm2709_defconfig
         VIRTIOCFG=0
         DTBS=1
-	MAKE_EXTRAVERSION=-v7+
+	    MAKE_EXTRAVERSION=-v7+
         KNAME=kernel7-${KERNEL_VER}.img
         kbuild
         ;;

@@ -5,14 +5,12 @@ rem Possible values:
 rem	       raspi2
 rem	       raspi3
 rem	       virt
-rem        versatilepb
-rem        vexpress-a9
-set MACHINE=virt
+set MACHINE=raspi3
 
-set KVER=4.14.79
+set KVER=4.19.57
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2018-11-13-raspbian-stretch-lite.img
+set DEFIMAGE=2019-07-10-raspbian-buster-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
@@ -115,7 +113,7 @@ exit /B
 
 :CASE_raspi2
 set KERNEL_IMAGE=kernel7-%KVER%.img
-set DTB_FILE=bcm2709-rpi-2-b.dtb
+set DTB_FILE=broadcom\bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
@@ -126,35 +124,14 @@ goto END_CASE
 
 :CASE_raspi3
 set KERNEL_IMAGE=kernel8-%KVER%.img
-set DTB_FILE=bcm2710-rpi-3-b.dtb
+set DTB_FILE=broadcom\bcm2710-rpi-3-b-plus.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
-set APPEND=%APPEND% root=/dev/mmcblk0p2
 set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
-goto END_CASE
-
-:CASE_versatilepb
-set KERNEL_IMAGE=linux-4.14.37-versatile
-set DTB_FILE=versatile-pb.dtb
-set CPUS=1
-set MEM=256
-rem set CTLDEVICE=<not supported>
-rem set DISKDEVICE=<not supported>
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
-set APPEND=%APPEND% root=PARTUUID=c7cb7e34-02
-goto END_CASE
-
-:CASE_vexpress-a9
-set KERNEL_IMAGE=linux-4.14.37-vexpress
-set DTB_FILE=vexpress-v2p-ca9.dtb
-set CPUS=2
-set MEM=1024
-set CTLDEVICE=virtio-blk-device
-set DISKDEVICE=none
-set NETDEVICE=virtio-net-device
-set APPEND=%APPEND% root=/dev/vda2
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -usb -device usb-kbd -device usb-mouse
+set APPEND=%APPEND% root=/dev/mmcblk0p2
+rem set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_virt
@@ -162,7 +139,7 @@ set KERNEL_IMAGE=linux-%KVER%-%MACHINE%
 set CPUS=2
 set MEM=1024
 set CTLDEVICE=virtio-blk-device
-set DISKDEVICE=none
+set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
 set APPEND=%APPEND% root=/dev/vda2
