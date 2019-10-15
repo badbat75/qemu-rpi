@@ -5,12 +5,12 @@ rem Possible values:
 rem	       raspi2
 rem	       raspi3
 rem	       virt
-set MACHINE=raspi3
+set MACHINE=virt64
 
-set KVER=4.19.57
+set KVER=5.3.6
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2019-07-10-raspbian-buster-lite.img
+set DEFIMAGE=2019-09-26-raspbian-buster-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
@@ -42,10 +42,10 @@ rem be configured set this
 rem set DEVICEHELP=1
 
 rem ===== Set the kernel build path =====
-set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\emiliano\linux-4.9.66
+rem set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\emiliano\linux-4.9.66
 
 rem ===== Additional QEMU Configs =====
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -monitor telnet:127.0.0.1:5021,server,nowait
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -monitor telnet:127.0.0.1:5020,server,nowait
 
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device usb-storage,drive=usbdrive,removable=on,id=usbdevice -drive file=%USERPROFILE%\Desktop\USB.img,id=usbdrive,if=none,format=raw
 
@@ -76,6 +76,12 @@ IF DEFINED NETDEVICE (
 	set NETWORKSTRING=-device %NETDEVICE%,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
 )
 
+IF DEFINED SERIALDEVICE (
+	set SERIALSTRING=-device %SERIALDEVICE%,chardev=ttyS0 -chardev socket,id=ttyS0,port=5021,host=0.0.0.0,nodelay,server,nowait,telnet
+	) ELSE (
+	set SERIALSTRING=-serial stdio
+)
+
 IF DEFINED NOGRAPHIC (
 	set APPEND=%APPEND% console=ttyAMA0,115200
 ) ELSE (
@@ -84,7 +90,7 @@ IF DEFINED NOGRAPHIC (
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
-set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -serial stdio -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
@@ -129,6 +135,7 @@ set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
 set NETDEVICE=usb-net
+set SERIALDEVICE=usb-serial
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -usb -device usb-kbd -device usb-mouse
 set APPEND=%APPEND% root=/dev/mmcblk0p2
 rem set NOGRAPHIC=-nographic
@@ -144,6 +151,19 @@ set NETDEVICE=virtio-net-device
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
 set APPEND=%APPEND% root=/dev/vda2
 set NOGRAPHIC=-nographic
+goto END_CASE
+
+:CASE_virt64
+set KERNEL_IMAGE=linux-%KVER%-%MACHINE%
+set CPUS=2
+set MEM=1024
+set CTLDEVICE=virtio-blk-device
+set DISKDEVICE=sd
+set NETDEVICE=virtio-net-device
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga cirrus -cpu cortex-a53 -usb -device usb-ehci
+set APPEND=%APPEND% root=/dev/vda2
+set NOGRAPHIC=-nographic
+set MACHINE=virt
 goto END_CASE
 
 :DEFAULT_CASE
