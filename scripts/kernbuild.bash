@@ -1,8 +1,11 @@
 #!/bin/bash
-QEMU_RPI_PATH=${HOME}/rpi/qemu-rpi
-SRC_PATH=${HOME}/rpi/linux
-BOOT_PATH=${QEMU_RPI_PATH}/boot
-MOD_PATH=${QEMU_RPI_PATH}/modules
+
+[ -f kernbuild.conf ] && source kernbuild.conf
+
+QEMU_RPI_PATH=${QEMU_RPI_PATH:-${HOME}/rpi/qemu-rpi}
+SRC_PATH=${SRC_PATH:-${HOME}/rpi/linux}
+BOOT_PATH=${BOOT_PATH:-${QEMU_RPI_PATH}/boot}
+MOD_PATH=${MOD_PATH:-${QEMU_RPI_PATH}/modules}
 
 SAVEPATH=${PWD}
 TARGET=${1}
@@ -164,13 +167,14 @@ case "${TARGET}" in
 		KCONFIG=bcmrpi_defconfig
 		VIRTIOCFG=0
 		DTBS=1
-	MAKE_EXTRAVERSION=+
+		MAKE_EXTRAVERSION=+
 		KNAME=kernel-${KERNEL_VER}.img
 		kbuild
 		;;    
-	*)
+	"*")
 		echo "virt|virt64|raspi3|raspi2|raspi"
 		exit 0
 		;;
 esac
+
 cd ${SAVEPATH}
