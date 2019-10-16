@@ -46,6 +46,7 @@ rem set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLi
 
 rem ===== Additional QEMU Configs =====
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -monitor telnet:127.0.0.1:5020,server,nowait
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci -device usb-kbd -device usb-mouse
 
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device usb-storage,drive=usbdrive,removable=on,id=usbdevice -drive file=%USERPROFILE%\Desktop\USB.img,id=usbdrive,if=none,format=raw
 
@@ -125,7 +126,8 @@ set MEM=1024
 set DISKDEVICE=sd
 set APPEND=%APPEND% root=/dev/mmcblk0p2
 set NETDEVICE=usb-net
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
+rem set QEMU_PARAMETERS=%QEMU_PARAMETERS%
+rem set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_raspi3
@@ -136,7 +138,7 @@ set MEM=1024
 set DISKDEVICE=sd
 set NETDEVICE=usb-net
 set SERIALDEVICE=usb-serial
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -usb -device usb-kbd -device usb-mouse
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53
 set APPEND=%APPEND% root=/dev/mmcblk0p2
 rem set NOGRAPHIC=-nographic
 goto END_CASE
@@ -148,9 +150,8 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci
-set APPEND=%APPEND% root=/dev/vda2
-set NOGRAPHIC=-nographic
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga std
+rem set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_virt64
@@ -160,8 +161,9 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga std -cpu cortex-a53 -usb -device usb-ehci -device usb-kbd -device usb-mouse
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std
 set APPEND=%APPEND% root=/dev/vda2
+rem set NOGRAPHIC=-nographic
 set MACHINE=virt
 goto END_CASE
 

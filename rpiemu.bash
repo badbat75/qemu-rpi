@@ -53,6 +53,7 @@ IMAGEFMT=raw
 
 #===== Additional QEMU Configs =====
 QEMU_PARAMETERS="${QEMU_PARAMETERS} -monitor telnet:127.0.0.1:5020,server,nowait"
+QEMU_PARAMETERS="${QEMU_PARAMETERS} -usb -device usb-ehci -device usb-kbd -device usb-mouse"
 
 #set QEMU_PARAMETERS=${QEMU_PARAMETERS} -device usb-storage,drive=usbdrive,removable=on,id=usbdevice -drive file=${USERPROFILE}/Desktop/USB.img,id=usbdrive,if=none,format=raw
 
@@ -69,9 +70,10 @@ case ${MACHINE} in
 		CPUS=4
 		MEM=1024
 		DISKDEVICE=sd
-		APPEND=${APPEND} root=/dev/mmcblk0p2
 		NETDEVICE=usb-net
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -usb -device usb-kbd -device usb-mouse"
+		#QEMU_PARAMETERS="${QEMU_PARAMETERS}"
+		APPEND=${APPEND} root=/dev/mmcblk0p2
+		#NOGRAPHIC=-nographic
 	;;
 	raspi3)
 		KERNEL_IMAGE=kernel8-${KVER}.img
@@ -81,8 +83,9 @@ case ${MACHINE} in
 		DISKDEVICE=sd
 		NETDEVICE=usb-net
 		SERIALDEVICE=usb-serial
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53 -usb -device usb-kbd -device usb-mouse"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53"
 		APPEND="${APPEND} root=/dev/mmcblk0p2"
+		#NOGRAPHIC=-nographic
 	;;
 	virt)
 		KERNEL_IMAGE=linux-${KVER}-${MACHINE}
@@ -91,9 +94,9 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -usb -device usb-ehci"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -device virtio-gpu-pci -vga std"
 		APPEND="${APPEND} root=/dev/vda2"
-		NOGRAPHIC=-nographic
+		#NOGRAPHIC=-nographic
 	;;
 	virt64)
 		KERNEL_IMAGE=linux-${KVER}-${MACHINE}
@@ -102,7 +105,7 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -device virtio-gpu-pci -vga std -cpu cortex-a53 -usb -device usb-ehci -device usb-kbd -device usb-mouse"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -device virtio-gpu-pci -vga std -cpu cortex-a53"
 		APPEND="${APPEND} root=/dev/vda2"
 		#NOGRAPHIC=-nographic
 		MACHINE=virt
