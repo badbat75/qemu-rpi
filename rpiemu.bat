@@ -160,9 +160,8 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga cirrus -cpu cortex-a53 -usb -device usb-ehci
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga cirrus -cpu cortex-a53 -usb -device usb-ehci -device usb-kbd -device usb-mouse
 set APPEND=%APPEND% root=/dev/vda2
-set NOGRAPHIC=-nographic
 set MACHINE=virt
 goto END_CASE
 

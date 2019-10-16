@@ -1,16 +1,22 @@
 #!/bin/bash
 
+source rpiemu.conf
+
+#===== Set the QEMUEXE variable =====
+#Value is the path of the qemu-system-* executable
+test -z "${QEMUEXE}" && QEMUEXE="qemu-system-aarch64"
+
 #===== Set the MACHINE variable =====
 #Possible values:
 #	       raspi2
 #	       raspi3
 #	       virt
-MACHINE=virt64
+test -z ${MACHINE} && MACHINE="virt64"
 
-KVER=5.3.6
+test -z ${KVER} && KVER="5.3.6"
 
 #===== Set the default IMAGE =====
-DEFIMAGE=2019-09-26-raspbian-buster-lite.img
+test -z "${DEFIMAGE}" && DEFIMAGE="2019-09-26-raspbian-buster-lite.img"
 
 #===== Set the DEVELOPMENT variable =====
 #Possible values:
@@ -52,7 +58,7 @@ QEMU_PARAMETERS="${QEMU_PARAMETERS} -monitor telnet:127.0.0.1:5020,server,nowait
 
 #========================================
 
-cd $(dirname ${0})
+cd $(dirname $(realpath ${0}))
 
 KERNEL_PATH=boot
 
@@ -144,13 +150,13 @@ else
 fi
 APPEND="${APPEND}"
 
-BASECMD="qemu-system-aarch64 -machine ${MACHINE}"
+BASECMD="${QEMUEXE} -machine ${MACHINE}"
 RUNLINE="${BASECMD} -kernel ${KERNEL_PATH}/${KERNEL_IMAGE} ${DTB} ${SMP} -m ${MEM} -append "\"${APPEND}\"" ${STORAGESTRING} ${NETWORKSTRING} ${SERIALSTRING} ${NOGRAPHIC} --no-reboot ${QEMU_PARAMETERS}"
 HELPLINE="${BASECMD} -device help"
 
-echo ======== rpiqemu.bat ==========
+echo ======== rpiqemu.bash ==========
 echo
-echo Path:         "$(dirname ${0})"
+echo Path:         "${PWD}"
 echo Kernel image: "${KERNEL_IMAGE}"
 echo DTB:          "${DTB}"
 echo CPUs:         "${CPUS}"
