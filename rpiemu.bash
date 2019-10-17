@@ -94,9 +94,9 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -device virtio-gpu-pci -vga std"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a15 -device virtio-gpu-pci -device virtio-rng-pci"
 		APPEND="${APPEND} root=/dev/vda2"
-		#NOGRAPHIC=-nographic
+		NOGRAPHIC=-nographic
 	;;
 	virt64)
 		KERNEL_IMAGE=linux-${KVER}-${MACHINE}
@@ -105,7 +105,7 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -device virtio-gpu-pci -vga std -cpu cortex-a53"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci"
 		APPEND="${APPEND} root=/dev/vda2"
 		#NOGRAPHIC=-nographic
 		MACHINE=virt
