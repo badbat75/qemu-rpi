@@ -161,7 +161,7 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -soundhw hda -audiodev id=dsound,driver=dsound
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
 set MACHINE=virt
