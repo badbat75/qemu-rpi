@@ -105,9 +105,9 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci"
+		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci -soundhw hda -audiodev id=pa,driver=pa"
 		APPEND="${APPEND} root=/dev/vda2"
-		#NOGRAPHIC=-nographic
+		NOGRAPHIC=-nographic
 		MACHINE=virt
 	;;
 	*)
