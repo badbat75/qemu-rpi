@@ -21,7 +21,7 @@ function prepare {
 
 function install {
 	cd ${TMP_MOD_PATH}
-	tar cf - . | xz -T0 > ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz
+	tar --owner=0 --group=0 cf - . | xz -T0 > ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz
 	cd -
 	rm -rf ${TMP_MOD_PATH}
 }
@@ -349,7 +349,7 @@ function kbuild {
 				CONFIG_KEYBOARD_CROS_EC \
 				CONFIG_I2C_CROS_EC_TUNNEL \
 				CONFIG_MFD_CROS_EC \
-				CONFIG_MFD_CROS_EC_CHARDEV \ 
+				CONFIG_MFD_CROS_EC_CHARDEV \
 				CONFIG_CROS_EC_PROTO \
 				CONFIG_EXTCON_USBC_CROS_EC "
 			# Rpmsg
@@ -365,7 +365,7 @@ function kbuild {
 			CONFIG_DISABLE_FLAGS+="CONFIG_HISI_PMU "
 			# PHY
 			CONFIG_DISABLE_FLAGS+="CONFIG_PHY_XGENE \
-				PHY_FSL_IMX8MQ_USB \
+				CONFIG_PHY_FSL_IMX8MQ_USB \
 				CONFIG_PHY_QCOM_USB_HS "
 			# FPGA
 			CONFIG_DISABLE_FLAGS+="CONFIG_ALTERA_FREEZE_BRIDGE "
