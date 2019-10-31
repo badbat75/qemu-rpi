@@ -21,7 +21,7 @@ function prepare {
 
 function install {
 	cd ${TMP_MOD_PATH}
-	tar --owner=0 --group=0 cf - . | xz -T0 > ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz
+	tar cf - --owner=0 --group=0 . | xz -T0 > ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz
 	cd -
 	rm -rf ${TMP_MOD_PATH}
 }
