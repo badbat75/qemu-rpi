@@ -29,7 +29,7 @@ APPEND="rootfstype=ext4 fsck.repair=yes rootwait"
 
 #===== Set the image details =====
 #If passed thru batch parameter use it else it uses the DEFIMAGE one
-if [ "x${1}"=="x" ]
+if [ "x${1}" == "x" ]
 then
 	IMAGE=${DEFIMAGE}
 else
@@ -129,6 +129,10 @@ fi
 if [ "${CTLDEVICE}" == "virtio-blk-device" ]
 then
 	STORAGESTRING="-device ${CTLDEVICE},drive=disk0 -drive file=${IMAGE},if=${DISKDEVICE},format=${IMAGEFMT},id=disk0"
+	#if [ -f cloud.img ]
+	#then
+	#	STORAGESTRING="-device ${CTLDEVICE},drive=cloud -drive file=cloud.img,if=none,format=raw,id=cloud ${STORAGESTRING} "
+	#fi
 else
 	STORAGESTRING="-drive file=${IMAGE},if=${DISKDEVICE},format=${IMAGEFMT}"
 fi
