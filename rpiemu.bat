@@ -5,12 +5,12 @@ rem Possible values:
 rem	       raspi2
 rem	       raspi3
 rem	       virt
-set MACHINE=virt64
+set MACHINE=raspi3
 
-set KVER=5.3.6
+set KVER=5.5
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=2019-09-26-raspbian-buster-lite.img
+set DEFIMAGE=arch\armhfp\2019-09-26-raspbian-buster-lite.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
@@ -46,7 +46,7 @@ rem set KERNEL_SOURCE_PATH=%USERPROFILE%\AppData\Local\Packages\CanonicalGroupLi
 
 rem ===== Additional QEMU Configs =====
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -monitor telnet:127.0.0.1:5020,server,nowait
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-ehci -device usb-kbd -device usb-mouse
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -usb -device usb-kbd -device usb-mouse
 
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device usb-storage,drive=usbdrive,removable=on,id=usbdevice -drive file=%USERPROFILE%\Desktop\USB.img,id=usbdrive,if=none,format=raw
 
@@ -91,7 +91,7 @@ IF DEFINED NOGRAPHIC (
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
-set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
@@ -150,7 +150,7 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -device virtio-gpu-pci -vga std
+set QEMU_PARAMETERS=-device usb-ehci %QEMU_PARAMETERS% -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 rem set NOGRAPHIC=-nographic
 goto END_CASE
 
@@ -161,7 +161,7 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -soundhw hda -audiodev id=dsound,driver=dsound
+set QEMU_PARAMETERS=-device usb-ehci %QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
 set MACHINE=virt

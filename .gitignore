@@ -1,4 +1,5 @@
 boot
 modules
 rpiemu.conf
+arch
 *.img
