@@ -5,7 +5,7 @@ rem Possible values:
 rem	       raspi2
 rem	       raspi3
 rem	       virt
-set MACHINE=raspi3
+set MACHINE=virt64
 
 set KVER=5.5.0
 
