@@ -7,7 +7,7 @@ rem	       raspi3
 rem	       virt
 set MACHINE=raspi3
 
-set KVER=5.5
+set KVER=5.5.0
 
 rem ===== Set the default IMAGE =====
 set DEFIMAGE=arch\armhfp\2019-09-26-raspbian-buster-lite.img
@@ -60,7 +60,7 @@ set KERNEL_PATH=boot
 IF ERRORLEVEL 1 CALL :DEFAULT_CASE
 
 IF DEFINED DTB_FILE (
-	set DTB=-dtb %KERNEL_PATH%\%DTB_FILE%
+	set DTB=-dtb %KERNEL_PATH%\%KVER%\%DTB_FILE%
 )
 
 IF %CPUS% GEQ 2 (
@@ -91,7 +91,7 @@ IF DEFINED NOGRAPHIC (
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
-set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KVER%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========

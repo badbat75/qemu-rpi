@@ -1,0 +1,8 @@
+QEMU_RPI_PATH=${HOME}/virt_kernel/binaries
+SRC_PATH=${HOME}/virt_kernel/linux-5.4.18
+
+TARGETS="rpi rpi3_aarch64"
+for TARGET in ${TARGETS}
+do
+	export PATH=${PATH}:~/.bbxb/gcc-toolkits/${TARGET}/toolchain/bin
+done

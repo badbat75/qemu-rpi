@@ -4,15 +4,13 @@
 
 QEMU_RPI_PATH=${QEMU_RPI_PATH:-${HOME}/rpi/qemu-rpi}
 SRC_PATH=${SRC_PATH:-${HOME}/rpi/linux}
-BOOT_PATH=${BOOT_PATH:-${QEMU_RPI_PATH}/boot}
-MOD_PATH=${MOD_PATH:-${QEMU_RPI_PATH}/modules}
 
 SAVEPATH=${PWD}
 TARGET=${1}
 
 function prepare {
-	[ ! -d ${BOOT_PATH} ] && mkdir ${BOOT_PATH}
-	[ ! -d ${MOD_PATH} ] && mkdir ${MOD_PATH}
+	[ ! -d ${BOOT_PATH} ] && mkdir -p ${BOOT_PATH}
+	[ ! -d ${MOD_PATH} ] && mkdir -p ${MOD_PATH}
 	test -d "${TMP_MOD_PATH}" && rm -rf ${TMP_MOD_PATH}
 	mkdir -p ${TMP_MOD_PATH}
 	test -f "${MOD_PATH}/linux-${KERNEL_VER}.tar.xz" && tar xJf ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz -C${TMP_MOD_PATH}
@@ -401,16 +399,16 @@ function kbuild {
 		;;
 		"raspi3")
 			# Drivers/USB
-			CONFIG_ENABLE_FLAGS+="CONFIG_USB_CATC \
-				CONFIG_USB_CDC_PHONET \
-				CONFIG_USB_HSO \
-				CONFIG_USB_IPHETH \
-				CONFIG_USB_KAWETH \
-				CONFIG_USB_NET_CDC_SUBSET \
-				CONFIG_USB_PEGASUS \
-				CONFIG_USB_RTL8150 \
-				CONFIG_USB_USBNET \
-				CONFIG_USB_ZD1201 "
+			#CONFIG_ENABLE_FLAGS+="CONFIG_USB_CATC \
+			#	CONFIG_USB_CDC_PHONET \
+			#	CONFIG_USB_HSO \
+			#	CONFIG_USB_IPHETH \
+			#	CONFIG_USB_KAWETH \
+			#	CONFIG_USB_NET_CDC_SUBSET \
+			#	CONFIG_USB_PEGASUS \
+			à	CONFIG_USB_RTL8150 \
+			#	CONFIG_USB_USBNET \
+			#	CONFIG_USB_ZD1201 "
 		;;
 	esac
 	
@@ -443,7 +441,7 @@ function kbuild {
 		KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
 		KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
 	fi
-	cp ${TGTIMAGE} ${BOOT_PATH}/${KNAME:-linux-${KERNEL_VER}-${TARGET}}
+	cp ${TGTIMAGE} ${BOOT_PATH}/${KNAME:-linux-${TARGET}}
 	install
 }
 
@@ -453,6 +451,8 @@ export MAKEFLAGS="-j${NTHREADS}"
 KERNEL_VER=$(cd ${SRC_PATH}; make kernelversion) || exit 1
 echo "Kernel version: ${KERNEL_VER}"
 TMP_MOD_PATH=/tmp/linux-${KERNEL_VER}
+BOOT_PATH=${QEMU_RPI_PATH}/${KERNEL_VER}/boot
+MOD_PATH=${QEMU_RPI_PATH}/modules
 
 case "${TARGET}" in
 	"virt")
@@ -479,7 +479,7 @@ case "${TARGET}" in
 		VIRTIOCFG=0
 		DTBS=1
 		MAKE_EXTRAVERSION=-v8+
-		KNAME=kernel8-${KERNEL_VER}.img
+		KNAME=kernel8.img
 		kbuild
 		;;
 	"raspi2")
@@ -488,7 +488,7 @@ case "${TARGET}" in
 		VIRTIOCFG=0
 		DTBS=1
 		MAKE_EXTRAVERSION=-v7+
-		KNAME=kernel7-${KERNEL_VER}.img
+		KNAME=kernel7.img
 		kbuild
 		;;
 	"raspi")
@@ -497,7 +497,7 @@ case "${TARGET}" in
 		VIRTIOCFG=0
 		DTBS=1
 		MAKE_EXTRAVERSION=+
-		KNAME=kernel-${KERNEL_VER}.img
+		KNAME=kernel.img
 		kbuild
 		;;    
 	*)

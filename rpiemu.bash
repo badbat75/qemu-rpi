@@ -13,7 +13,7 @@ test -z "${QEMUEXE}" && QEMUEXE="qemu-system-aarch64"
 #	       virt
 test -z ${MACHINE} && MACHINE="virt64"
 
-test -z ${KVER} && KVER="5.3.6"
+test -z ${KVER} && KVER="5.5.0"
 
 #===== Set the default IMAGE =====
 test -z "${DEFIMAGE}" && DEFIMAGE="2019-09-26-raspbian-buster-lite.img"
@@ -94,7 +94,7 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a15 -device virtio-gpu-pci -device virtio-rng-pci"
+		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a15 -device virtio-gpu-pci -device virtio-rng-pci"
 		APPEND="${APPEND} root=/dev/vda2"
 		NOGRAPHIC=-nographic
 	;;
@@ -105,7 +105,7 @@ case ${MACHINE} in
 		CTLDEVICE=virtio-blk-device
 		DISKDEVICE=sd
 		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci -soundhw hda -audiodev id=pa,driver=pa"
+		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci -soundhw hda -audiodev id=pa,driver=pa"
 		APPEND="${APPEND} root=/dev/vda2"
 		NOGRAPHIC=-nographic
 		MACHINE=virt
@@ -118,7 +118,7 @@ esac
 
 if [ ! -z ${DTB_FILE} ]
 then
-	DTB="-dtb ${KERNEL_PATH}/${DTB_FILE}"
+	DTB="-dtb ${KERNEL_PATH}/${KVER}/${DTB_FILE}"
 fi
 
 if [ "${CPUS}" -ge "2" ]
@@ -158,7 +158,7 @@ fi
 APPEND="${APPEND}"
 
 BASECMD="${QEMUEXE} -machine ${MACHINE}"
-RUNLINE="${BASECMD} -kernel ${KERNEL_PATH}/${KERNEL_IMAGE} ${DTB} ${SMP} -m ${MEM} -append "\"${APPEND}\"" ${STORAGESTRING} ${NETWORKSTRING} ${SERIALSTRING} ${NOGRAPHIC} --no-reboot ${QEMU_PARAMETERS}"
+RUNLINE="${BASECMD} -kernel ${KERNEL_PATH}/${KVER}/${KERNEL_IMAGE} ${DTB} ${SMP} -m ${MEM} -append "\"${APPEND}\"" ${STORAGESTRING} ${NETWORKSTRING} ${SERIALSTRING} ${NOGRAPHIC} --no-reboot ${QEMU_PARAMETERS}"
 HELPLINE="${BASECMD} -device help"
 
 echo ======== rpiqemu.bash ==========
