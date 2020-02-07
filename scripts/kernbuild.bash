@@ -451,7 +451,7 @@ export MAKEFLAGS="-j${NTHREADS}"
 KERNEL_VER=$(cd ${SRC_PATH}; make kernelversion) || exit 1
 echo "Kernel version: ${KERNEL_VER}"
 TMP_MOD_PATH=/tmp/linux-${KERNEL_VER}
-BOOT_PATH=${QEMU_RPI_PATH}/${KERNEL_VER}/boot
+BOOT_PATH=${QEMU_RPI_PATH}/boot/${KERNEL_VER}
 MOD_PATH=${QEMU_RPI_PATH}/modules
 
 case "${TARGET}" in

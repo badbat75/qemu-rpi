@@ -5,9 +5,10 @@ rem Possible values:
 rem	       raspi2
 rem	       raspi3
 rem	       virt
-set MACHINE=virt64
+rem	       virt64
+set MACHINE=virt
 
-set KVER=5.5.0
+set KVER=5.5.2
 
 rem ===== Set the default IMAGE =====
 set DEFIMAGE=arch\armhfp\2019-09-26-raspbian-buster-lite.img
@@ -119,20 +120,22 @@ pause
 exit /B
 
 :CASE_raspi2
-set KERNEL_IMAGE=kernel7-%KVER%.img
-set DTB_FILE=broadcom\bcm2709-rpi-2-b.dtb
+set KERNEL_IMAGE=kernel7.img
+set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
-set APPEND=%APPEND% root=/dev/mmcblk0p2
 set NETDEVICE=usb-net
+set SERIALDEVICE=usb-serial
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a7
+set APPEND=%APPEND% root=/dev/mmcblk0p2
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS%
 rem set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_raspi3
-set KERNEL_IMAGE=kernel8-%KVER%.img
-set DTB_FILE=broadcom\bcm2710-rpi-3-b-plus.dtb
+set KERNEL_IMAGE=kernel8.img
+set DTB_FILE=bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
@@ -144,20 +147,22 @@ rem set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_virt
-set KERNEL_IMAGE=linux-%KVER%-%MACHINE%
+set KERNEL_IMAGE=linux-%MACHINE%
 set CPUS=2
 set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=-device usb-ehci %QEMU_PARAMETERS% -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
-rem set NOGRAPHIC=-nographic
+rem set SERIALDEVICE=usb-serial
+set QEMU_PARAMETERS=-device usb-ehci %QEMU_PARAMETERS% -cpu cortex-a7 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
+set APPEND=%APPEND% root=/dev/vda2
+set NOGRAPHIC=-nographic
 goto END_CASE
 
 :CASE_virt64
-set KERNEL_IMAGE=linux-%KVER%-%MACHINE%
-set CPUS=2
-set MEM=1024
+set KERNEL_IMAGE=linux-%MACHINE%
+set CPUS=4
+set MEM=2048
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
