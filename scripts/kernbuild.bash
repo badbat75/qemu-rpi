@@ -478,7 +478,7 @@ case "${TARGET}" in
 		KCONFIG=bcmrpi3_defconfig
 		VIRTIOCFG=0
 		DTBS=1
-		MAKE_EXTRAVERSION=-v8+
+		MAKE_EXTRAVERSION=
 		KNAME=kernel8.img
 		kbuild
 		;;
@@ -487,7 +487,7 @@ case "${TARGET}" in
 		KCONFIG=bcm2709_defconfig
 		VIRTIOCFG=0
 		DTBS=1
-		MAKE_EXTRAVERSION=-v7+
+		MAKE_EXTRAVERSION=
 		KNAME=kernel7.img
 		kbuild
 		;;
