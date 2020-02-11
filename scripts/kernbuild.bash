@@ -7,6 +7,12 @@ SRC_PATH=${SRC_PATH:-${HOME}/rpi/linux}
 
 SAVEPATH=${PWD}
 TARGET=${1}
+case ${2} in
+	config) CONFIG=1
+			;;
+	onlyconfig) CONFIG=2
+			;;
+esac
 
 function prepare {
 	[ ! -d ${BOOT_PATH} ] && mkdir -p ${BOOT_PATH}
@@ -750,6 +756,13 @@ function kbuild {
 	done
 
 	KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} olddefconfig || exit 1
+	case ${CONFIG} in
+		1) 	KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
+			;;
+		2)	KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
+			return 0
+			;;
+	esac
 	KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
 	KBUILD_BUILD_TIMESTAMP='' make CC="${CC:-${CROSS_COMPILE}gcc}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
 	if [ ${DTBS} -eq 1 ]
