@@ -6,7 +6,7 @@ rem	       raspi2
 rem	       raspi3
 rem	       virt
 rem	       virt64
-set MACHINE=virt64
+set MACHINE=virt
 
 set KVER=5.5.2
 
@@ -153,11 +153,10 @@ set MEM=1024
 set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
-rem set SERIALDEVICE=usb-serial
 set QEMU_PARAMETERS=-device qemu-xhci %QEMU_PARAMETERS% -cpu cortex-a15 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
-set NOGRAPHIC=-nographic
-set MACHINE=virt
+rem set NOGRAPHIC=-nographic
+set MACHINE=virt,highmem=off
 goto END_CASE
 
 :CASE_virt64
@@ -170,7 +169,7 @@ set NETDEVICE=virtio-net-device
 set QEMU_PARAMETERS=-device usb-xhci %QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
-set MACHINE=virt,highmem=off
+set MACHINE=virt
 goto END_CASE
 
 :DEFAULT_CASE
