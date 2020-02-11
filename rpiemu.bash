@@ -13,10 +13,10 @@ test -z "${QEMUEXE}" && QEMUEXE="qemu-system-aarch64"
 #	       virt
 test -z ${MACHINE} && MACHINE="virt64"
 
-test -z ${KVER} && KVER="5.5.0"
+test -z ${KVER} && KVER="5.5.2"
 
 #===== Set the default IMAGE =====
-test -z "${DEFIMAGE}" && DEFIMAGE="2019-09-26-raspbian-buster-lite.img"
+test -z "${DEFIMAGE}" && DEFIMAGE="2020-02-05-raspbian-buster-lite.img"
 
 #===== Set the DEVELOPMENT variable =====
 #Possible values:
@@ -65,7 +65,7 @@ KERNEL_PATH=boot
 
 case ${MACHINE} in
 	raspi2)
-		KERNEL_IMAGE=kernel7-${KVER}.img
+		KERNEL_IMAGE=kernel7.img
 		DTB_FILE=broadcom/bcm2709-rpi-2-b.dtb
 		CPUS=4
 		MEM=1024
@@ -76,7 +76,7 @@ case ${MACHINE} in
 		#NOGRAPHIC=-nographic
 	;;
 	raspi3)
-		KERNEL_IMAGE=kernel8-${KVER}.img
+		KERNEL_IMAGE=kernel8.img
 		DTB_FILE=broadcom/bcm2710-rpi-3-b-plus.dtb
 		CPUS=4
 		MEM=1024
@@ -88,7 +88,7 @@ case ${MACHINE} in
 		#NOGRAPHIC=-nographic
 	;;
 	virt)
-		KERNEL_IMAGE=linux-${KVER}-${MACHINE}
+		KERNEL_IMAGE=linux-${MACHINE}
 		CPUS=2
 		MEM=1024
 		CTLDEVICE=virtio-blk-device
@@ -97,9 +97,10 @@ case ${MACHINE} in
 		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a15 -device virtio-gpu-pci -device virtio-rng-pci"
 		APPEND="${APPEND} root=/dev/vda2"
 		NOGRAPHIC=-nographic
+		MACHINE=virt,highmem=off
 	;;
 	virt64)
-		KERNEL_IMAGE=linux-${KVER}-${MACHINE}
+		KERNEL_IMAGE=linux-${MACHINE}
 		CPUS=2
 		MEM=1024
 		CTLDEVICE=virtio-blk-device

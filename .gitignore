@@ -3,3 +3,4 @@ modules
 rpiemu.conf
 arch
 *.img
+*.zip

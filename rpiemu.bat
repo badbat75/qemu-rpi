@@ -154,7 +154,7 @@ set CTLDEVICE=virtio-blk-device
 set DISKDEVICE=sd
 set NETDEVICE=virtio-net-device
 rem set SERIALDEVICE=usb-serial
-set QEMU_PARAMETERS=-device qemu-xhci %QEMU_PARAMETERS% -cpu cortex-a7 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
+set QEMU_PARAMETERS=-device qemu-xhci %QEMU_PARAMETERS% -cpu cortex-a15 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 set NOGRAPHIC=-nographic
 set MACHINE=virt
@@ -170,7 +170,7 @@ set NETDEVICE=virtio-net-device
 set QEMU_PARAMETERS=-device usb-xhci %QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
-set MACHINE=virt
+set MACHINE=virt,highmem=off
 goto END_CASE
 
 :DEFAULT_CASE
