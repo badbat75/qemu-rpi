@@ -4,6 +4,7 @@
 
 QEMU_RPI_PATH=${QEMU_RPI_PATH:-${HOME}/rpi/qemu-rpi}
 SRC_PATH=${SRC_PATH:-${HOME}/rpi/linux}
+VERBOSE=${VERBOSE:-0}
 CCACHE=1
 
 SAVEPATH=${PWD}
@@ -21,7 +22,7 @@ function prepare {
 	test -d "${TMP_MOD_PATH}" && rm -rf ${TMP_MOD_PATH}
 	mkdir -p ${TMP_MOD_PATH}
 	test -f "${MOD_PATH}/linux-${KERNEL_VER}.tar.xz" && tar xJf ${MOD_PATH}/linux-${KERNEL_VER}.tar.xz -C${TMP_MOD_PATH}
-	make clean
+	make V=${VERBOSE} clean
 }
 
 function install {
@@ -32,26 +33,9 @@ function install {
 }
 
 function kbuild {
-	export ARCH
-	case ${ARCH} in
-		arm)
-			export CROSS_COMPILE=arm-linux-gnueabihf-
-			IMAGE=zImage
-			;;
-		arm64)
-			export CROSS_COMPILE=aarch64-linux-gnu-
-			export CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
-			IMAGE=Image
-			;;
-	esac
-	CC=${CC:-${CROSS_COMPILE}gcc}
-	if [ ${CCACHE} -eq 1 ]
-	then
-		CC="ccache ${CC}"
-	fi
 	TGTIMAGE=${SRC_PATH}/arch/${ARCH}/boot/${IMAGE}
 	prepare
-	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${KCONFIG} .config || exit 1
+	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${KCONFIG} .config || exit 1
 	if [ ${VIRTIOCFG} -eq 1 ]
 		then
 		# Platform
@@ -447,20 +431,20 @@ function kbuild {
 		echo "${item}: Enabled"
 	done
 
-	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} olddefconfig || exit 1
+	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} olddefconfig || exit 1
 	case ${CONFIG} in
-		1) 	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
+		1) 	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
 			;;
-		2)	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
+		2)	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} nconfig || exit 1
 			return 0
 			;;
 	esac
-	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
-	KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
+	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} ${IMAGE} modules || exit 1
+	KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_MOD_PATH=${TMP_MOD_PATH} modules_install || exit 1
 	if [ ${DTBS} -eq 1 ]
 	then
-		KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
-		KBUILD_BUILD_TIMESTAMP='' make CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
+		KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} dtbs || exit 1
+		KBUILD_BUILD_TIMESTAMP='' make V=${VERBOSE} CC="${CC}" KCFLAGS="${CFLAGS}" EXTRAVERSION=${MAKE_EXTRAVERSION} INSTALL_DTBS_PATH=${BOOT_PATH} dtbs_install || exit 1
 	fi
 	cp ${TGTIMAGE} ${BOOT_PATH}/${KNAME:-linux-${TARGET}}
 	install
@@ -484,7 +468,6 @@ case "${TARGET}" in
 		DTBS=0
 		MAKE_EXTRAVERSION=-virt
 		CONFIG_ENABLE_FLAGS="CONFIG_MODVERSIONS "
-		kbuild
 		;;
 	"virt64")
 		ARCH=arm64
@@ -493,7 +476,6 @@ case "${TARGET}" in
 		DTBS=0
 		MAKE_EXTRAVERSION=-virt64
 		CONFIG_ENABLE_FLAGS="CONFIG_MODVERSIONS "
-		kbuild
 		;;
 	"raspi3")
 		ARCH=arm64
@@ -511,7 +493,6 @@ case "${TARGET}" in
 		DTBS=1
 		MAKE_EXTRAVERSION=
 		KNAME=kernel7.img
-		kbuild
 		;;
 	"raspi")
 		ARCH=arm
@@ -520,12 +501,37 @@ case "${TARGET}" in
 		DTBS=1
 		MAKE_EXTRAVERSION=+
 		KNAME=kernel.img
-		kbuild
 		;;    
 	*)
 		echo "virt|virt64|raspi3|raspi2|raspi"
 		exit 0
 		;;
 esac
+
+export ARCH
+
+case ${ARCH} in
+	arm)
+		export CROSS_COMPILE=arm-linux-gnueabihf-
+		IMAGE=zImage
+		;;
+	arm64)
+		export CROSS_COMPILE=aarch64-linux-gnu-
+		export CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
+		IMAGE=Image
+		;;
+esac
+
+CC=${CC:-${CROSS_COMPILE}gcc}
+if [ ${CCACHE} -eq 1 ]
+then
+	CC="ccache ${CC}"
+fi
+
+GCC_VER=$(${CC} --version | head -n1 | awk '{print $(NF-1) " " $NF}') || exit 1
+echo "GCC Version: ${GCC_VER}"
+echo
+
+kbuild
 
 cd ${SAVEPATH}
