@@ -484,7 +484,6 @@ case "${TARGET}" in
 		DTBS=1
 		MAKE_EXTRAVERSION=
 		KNAME=kernel8.img
-		kbuild
 		;;
 	"raspi2")
 		ARCH=arm
