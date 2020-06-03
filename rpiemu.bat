@@ -6,12 +6,12 @@ rem	       raspi2
 rem	       raspi3
 rem	       virt
 rem	       virt64
-set MACHINE=virt
+set MACHINE=virt64
 
-set KVER=5.5.2
+set KVER=5.4.44
 
 rem ===== Set the default IMAGE =====
-set DEFIMAGE=arch\armhfp\2019-09-26-raspbian-buster-lite.img
+set DEFIMAGE=arch\armhfp\2020-05-27-raspios-buster-lite-armhf.img
 
 rem ===== Set the DEVELOPMENT variable =====
 rem Possible values:
@@ -25,9 +25,9 @@ set APPEND=rootfstype=ext4 fsck.repair=yes rootwait
 rem ===== Set the image details =====
 rem If passed thru batch parameter use it else it uses the DEFIMAGE one
 IF "%~1"=="" (
-set IMAGE=%DEFIMAGE%
+	set IMAGE=%DEFIMAGE%
 ) ELSE (
-set IMAGE=%~1
+	set IMAGE=%~1
 )
 set IMAGEFMT=raw
 
@@ -68,6 +68,15 @@ IF %CPUS% GEQ 2 (
 	set SMP=-smp %CPUS%
 )
 
+IF "%VIRTUALHW%"=="1" (
+	rem qemu-virt devices
+	set QEMU_PARAMETERS=-device qemu-xhci -device virtio-gpu-pci -vga std -device virtio-rng-pci %QEMU_PARAMETERS%
+	set CTLDEVICE=virtio-blk-device
+	set NETDEVICE=virtio-net-device
+) ELSE (
+	rem set QEMU_PARAMETERS=-device usb-hub %QEMU_PARAMETERS%
+)
+
 IF "%CTLDEVICE%"=="virtio-blk-device" (
 	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
 ) ELSE (
@@ -76,6 +85,10 @@ IF "%CTLDEVICE%"=="virtio-blk-device" (
 
 IF DEFINED NETDEVICE (
 	set NETWORKSTRING=-device %NETDEVICE%,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80
+)
+
+IF DEFINED NETDEVICE2 (
+	set NETWORKSTRING=-device %NETDEVICE%,netdev=eth1 -netdev user,id=eth1
 )
 
 IF DEFINED SERIALDEVICE (
@@ -89,6 +102,7 @@ IF DEFINED NOGRAPHIC (
 ) ELSE (
 	set APPEND=%APPEND% console=tty1
 )
+
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
@@ -135,7 +149,7 @@ goto END_CASE
 
 :CASE_raspi3
 set KERNEL_IMAGE=kernel8.img
-set DTB_FILE=bcm2710-rpi-3-b.dtb
+set DTB_FILE=broadcom\bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
 set DISKDEVICE=sd
@@ -150,10 +164,9 @@ goto END_CASE
 set KERNEL_IMAGE=linux-%MACHINE%
 set CPUS=2
 set MEM=1024
-set CTLDEVICE=virtio-blk-device
+set VIRTUALHW=1
 set DISKDEVICE=sd
-set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=-device qemu-xhci %QEMU_PARAMETERS% -cpu cortex-a15 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a15 -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
 set MACHINE=virt,highmem=off
@@ -163,10 +176,9 @@ goto END_CASE
 set KERNEL_IMAGE=linux-%MACHINE%
 set CPUS=4
 set MEM=2048
-set CTLDEVICE=virtio-blk-device
+set VIRTUALHW=1
 set DISKDEVICE=sd
-set NETDEVICE=virtio-net-device
-set QEMU_PARAMETERS=-device usb-xhci %QEMU_PARAMETERS% -cpu cortex-a53 -device virtio-gpu-pci -vga std -device virtio-rng-pci -device intel-hda -audiodev dsound,id=default
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
 set MACHINE=virt

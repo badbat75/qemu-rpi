@@ -13,7 +13,7 @@ test -z "${QEMUEXE}" && QEMUEXE="qemu-system-aarch64"
 #	       virt
 test -z ${MACHINE} && MACHINE="virt64"
 
-test -z ${KVER} && KVER="5.5.2"
+test -z ${KVER} && KVER="5.4.44"
 
 #===== Set the default IMAGE =====
 test -z "${DEFIMAGE}" && DEFIMAGE="2020-02-05-raspbian-buster-lite.img"
@@ -91,10 +91,9 @@ case ${MACHINE} in
 		KERNEL_IMAGE=linux-${MACHINE}
 		CPUS=2
 		MEM=1024
-		CTLDEVICE=virtio-blk-device
+		VIRTUALHW=1
 		DISKDEVICE=sd
-		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a15 -device virtio-gpu-pci -device virtio-rng-pci"
+		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a15 -soundhw hda -audiodev id=pa,driver=pa"
 		APPEND="${APPEND} root=/dev/vda2"
 		NOGRAPHIC=-nographic
 		MACHINE=virt,highmem=off
@@ -103,10 +102,9 @@ case ${MACHINE} in
 		KERNEL_IMAGE=linux-${MACHINE}
 		CPUS=2
 		MEM=1024
-		CTLDEVICE=virtio-blk-device
+		VIRTUALHW=1
 		DISKDEVICE=sd
-		NETDEVICE=virtio-net-device
-		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a53 -device virtio-gpu-pci -device virtio-rng-pci -soundhw hda -audiodev id=pa,driver=pa"
+		QEMU_PARAMETERS="-device usb-ehci ${QEMU_PARAMETERS} -cpu cortex-a53 -soundhw hda -audiodev id=pa,driver=pa"
 		APPEND="${APPEND} root=/dev/vda2"
 		NOGRAPHIC=-nographic
 		MACHINE=virt
@@ -125,6 +123,15 @@ fi
 if [ "${CPUS}" -ge "2" ]
 then
 	SMP="-smp ${CPUS}"
+fi
+
+if [ "${VIRTUALHW}" == "1" ]; then
+	# qemu-virt devices
+	QEMU_PARAMETERS="-device qemu-xhci -device virtio-gpu-pci -vga std -device virtio-rng-pci ${QEMU_PARAMETERS}"
+	CTLDEVICE=virtio-blk-device
+	NETDEVICE=virtio-net-device
+else
+	#QEMU_PARAMETERS="-device usb-hub ${QEMU_PARAMETERS}"
 fi
 
 if [ "${CTLDEVICE}" == "virtio-blk-device" ]

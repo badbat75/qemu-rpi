@@ -1,5 +1,6 @@
 boot
 modules
+scripts/linux-*
 rpiemu.conf
 arch
 *.img
