@@ -488,7 +488,7 @@ case "${TARGET}" in
 	"raspi3")
 		ARCH=arm64
 		KCONFIG=bcmrpi3_defconfig
-		VIRTIOCFG=1
+		VIRTIOCFG=0
 		DTBS=1
 		MAKE_EXTRAVERSION=
 		KNAME=kernel8.img

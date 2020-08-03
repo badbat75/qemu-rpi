@@ -6,7 +6,7 @@ rem	       raspi2
 rem	       raspi3
 rem	       virt
 rem	       virt64
-set MACHINE=virt64
+set MACHINE=raspi3
 
 set KVER=5.4.44
 
@@ -78,9 +78,13 @@ IF "%VIRTUALHW%"=="1" (
 )
 
 IF "%CTLDEVICE%"=="virtio-blk-device" (
-	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%,id=disk0
+	set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=none,format=%IMAGEFMT%,id=disk0
 ) ELSE (
-	set STORAGESTRING=-drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%
+	IF "%CTLDEVICE%"=="sd-card" (
+		set STORAGESTRING=-device %CTLDEVICE%,drive=disk0 -drive file=%IMAGE%,if=none,format=%IMAGEFMT%,id=disk0
+	) ELSE (
+		set STORAGESTRING=-drive file=%IMAGE%,if=%DISKDEVICE%,format=%IMAGEFMT%
+	)
 )
 
 IF DEFINED NETDEVICE (
@@ -106,7 +110,8 @@ IF DEFINED NOGRAPHIC (
 set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
-set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KVER%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% --no-reboot %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
+set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KVER%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
+rem set RUNLINE=%RUNLINE% --no-reboot
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
@@ -138,11 +143,11 @@ set KERNEL_IMAGE=kernel7.img
 set DTB_FILE=bcm2709-rpi-2-b.dtb
 set CPUS=4
 set MEM=1024
-set DISKDEVICE=sd
+set CTLDEVICE=sd-card
 set NETDEVICE=usb-net
 set SERIALDEVICE=usb-serial
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a7
-set APPEND=%APPEND% root=/dev/mmcblk0p2
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a7 -device usb-audio -audiodev dsound,id=default
+set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.fiq_fsm_enable=0
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS%
 rem set NOGRAPHIC=-nographic
 goto END_CASE
@@ -152,11 +157,11 @@ set KERNEL_IMAGE=kernel8.img
 set DTB_FILE=broadcom\bcm2710-rpi-3-b.dtb
 set CPUS=4
 set MEM=1024
-set DISKDEVICE=sd
+set CTLDEVICE=sd-card
 set NETDEVICE=usb-net
 set SERIALDEVICE=usb-serial
-set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53
-set APPEND=%APPEND% root=/dev/mmcblk0p2
+set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device usb-audio -audiodev dsound,id=default
+set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.fiq_fsm_enable=0
 rem set NOGRAPHIC=-nographic
 goto END_CASE
 
@@ -165,7 +170,6 @@ set KERNEL_IMAGE=linux-%MACHINE%
 set CPUS=2
 set MEM=1024
 set VIRTUALHW=1
-set DISKDEVICE=sd
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a15 -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
@@ -177,7 +181,6 @@ set KERNEL_IMAGE=linux-%MACHINE%
 set CPUS=4
 set MEM=2048
 set VIRTUALHW=1
-set DISKDEVICE=sd
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device intel-hda -audiodev dsound,id=default
 set APPEND=%APPEND% root=/dev/vda2
 rem set NOGRAPHIC=-nographic
