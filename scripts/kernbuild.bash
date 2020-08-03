@@ -4,6 +4,7 @@
 
 QEMU_RPI_PATH=${QEMU_RPI_PATH:-${HOME}/rpi/qemu-rpi}
 SRC_PATH=${SRC_PATH:-${HOME}/rpi/linux}
+KERN_OPTLEVEL=${KERN_OPTLEVEL:-3}
 VERBOSE=${VERBOSE:-0}
 CCACHE=1
 
@@ -403,21 +404,19 @@ function kbuild {
 			# FPGA
 			CONFIG_DISABLE_FLAGS+="CONFIG_ALTERA_FREEZE_BRIDGE "
 		;;
-		"raspi3")
-			# Drivers/USB
-			#CONFIG_ENABLE_FLAGS+="CONFIG_USB_CATC \
-			#	CONFIG_USB_CDC_PHONET \
-			#	CONFIG_USB_HSO \
-			#	CONFIG_USB_IPHETH \
-			#	CONFIG_USB_KAWETH \
-			#	CONFIG_USB_NET_CDC_SUBSET \
-			#	CONFIG_USB_PEGASUS \
-			#	CONFIG_USB_RTL8150 \
-			#	CONFIG_USB_USBNET \
-			#	CONFIG_USB_ZD1201 "
+	esac
+
+	case ${KERN_OPTLEVEL} in
+		s|S)	scripts/config -e CC_OPTIMIZE_FOR_SIZE -d CC_OPTIMIZE_FOR_PERFORMANCE -d CC_OPTIMIZE_FOR_PERFORMANCE_O3
+		;;
+		2)	scripts/config -d CC_OPTIMIZE_FOR_SIZE -e CC_OPTIMIZE_FOR_PERFORMANCE -d CC_OPTIMIZE_FOR_PERFORMANCE_O3
+		;;
+		3)	# Patch kernel to build with -O3 flag
+			sed -i '/depends on ARC$/d' init/Kconfig
+			scripts/config -d CC_OPTIMIZE_FOR_SIZE -d CC_OPTIMIZE_FOR_PERFORMANCE -e CC_OPTIMIZE_FOR_PERFORMANCE_O3
 		;;
 	esac
-	
+
 	if [ ${ENABLELTO:-0} -eq 1 ]
 	then
 		CONFIG_ENABLE_FLAGS+="CONFIG_LTO "
