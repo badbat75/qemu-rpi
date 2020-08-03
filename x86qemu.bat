@@ -14,8 +14,8 @@ set DISK1=arch/x86_64/data-hd.img
 set CDROM=arch/x86_64/ubuntu-19.10-live-server-amd64.iso
 set MACHINE_SPECS=-M q35 -smp 2 -m 6144 -device virtio-balloon-pci -device virtio-rng-pci
 
-set MACHINE_STORAGE=-device virtio-blk-pci,drive=disk0 -drive file=%DISK0%,if=sd,format=raw,id=disk0
-set MACHINE_STORAGE=%MACHINE_STORAGE% -device virtio-blk-pci,drive=disk1 -drive file=arch/x86_64/data-hd.img,if=sd,format=raw,id=disk1
+set MACHINE_STORAGE=-device virtio-blk-pci,drive=disk0 -drive file=%DISK0%,if=none,format=raw,id=disk0
+set MACHINE_STORAGE=%MACHINE_STORAGE% -device virtio-blk-pci,drive=disk1 -drive file=arch/x86_64/data-hd.img,if=none,format=raw,id=disk1
 set MACHINE_STORAGE=%MACHINE_STORAGE% -cdrom %CDROM%
 
 set MACHINE_NETWORK=-device virtio-net-pci,netdev=eth0 -netdev user,id=eth0,hostfwd=tcp::5022-:22,hostfwd=tcp::5080-:80

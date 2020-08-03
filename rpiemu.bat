@@ -6,9 +6,9 @@ rem	       raspi2
 rem	       raspi3
 rem	       virt
 rem	       virt64
-set MACHINE=raspi3
+set MACHINE=raspi2
 
-set KVER=5.4.44
+set KVER=5.4.51
 
 rem ===== Set the default IMAGE =====
 set DEFIMAGE=arch\armhfp\2020-05-27-raspios-buster-lite-armhf.img
@@ -111,7 +111,7 @@ set APPEND="%APPEND%"
 
 set BASECMD="%PROGRAMFILES%"\qemu\qemu-system-aarch64.exe -machine %MACHINE%
 set RUNLINE=%BASECMD% -kernel %KERNEL_PATH%\%KVER%\%KERNEL_IMAGE% %DTB% %SMP% -m %MEM% -append %APPEND% %NOGRAPHIC% %QEMU_PARAMETERS% %STORAGESTRING% %NETWORKSTRING% %SERIALSTRING%
-rem set RUNLINE=%RUNLINE% --no-reboot
+set RUNLINE=%RUNLINE% --no-reboot
 set HELPLINE=%BASECMD% -device help
 
 echo ======== rpiqemu.bat ==========
@@ -147,7 +147,7 @@ set CTLDEVICE=sd-card
 set NETDEVICE=usb-net
 set SERIALDEVICE=usb-serial
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a7 -device usb-audio -audiodev dsound,id=default
-set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.fiq_fsm_enable=0
+set APPEND=%APPEND% root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait dwc_otg.fiq_fsm_enable=0
 rem set QEMU_PARAMETERS=%QEMU_PARAMETERS%
 rem set NOGRAPHIC=-nographic
 goto END_CASE
@@ -161,7 +161,7 @@ set CTLDEVICE=sd-card
 set NETDEVICE=usb-net
 set SERIALDEVICE=usb-serial
 set QEMU_PARAMETERS=%QEMU_PARAMETERS% -cpu cortex-a53 -device usb-audio -audiodev dsound,id=default
-set APPEND=%APPEND% root=/dev/mmcblk0p2 dwc_otg.fiq_fsm_enable=0
+set APPEND=%APPEND% root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait dwc_otg.fiq_fsm_enable=0
 rem set NOGRAPHIC=-nographic
 goto END_CASE
 
