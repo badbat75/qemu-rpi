@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source rpiemu.conf
+[ -f rpiemu.conf ] && source rpiemu.conf
 
 #===== Set the QEMUEXE variable =====
 #Value is the path of the qemu-system-* executable
@@ -13,10 +13,10 @@ test -z "${QEMUEXE}" && QEMUEXE="qemu-system-aarch64"
 #	       virt
 test -z ${MACHINE} && MACHINE="virt64"
 
-test -z ${KVER} && KVER="5.4.44"
+test -z ${KVER} && KVER="5.13.2"
 
 #===== Set the default IMAGE =====
-test -z "${DEFIMAGE}" && DEFIMAGE="2020-02-05-raspbian-buster-lite.img"
+test -z "${DEFIMAGE}" && DEFIMAGE="2021-05-07-raspios-buster-armhf-lite.img"
 
 #===== Set the DEVELOPMENT variable =====
 #Possible values:
@@ -130,7 +130,7 @@ if [ "${VIRTUALHW}" == "1" ]; then
 	QEMU_PARAMETERS="-device qemu-xhci -device virtio-gpu-pci -vga std -device virtio-rng-pci ${QEMU_PARAMETERS}"
 	CTLDEVICE=virtio-blk-device
 	NETDEVICE=virtio-net-device
-else
+#else
 	#QEMU_PARAMETERS="-device usb-hub ${QEMU_PARAMETERS}"
 fi
 
